@@ -1,0 +1,122 @@
+{% extends 'main/base.html' %}
+
+{% block title %}Saved Recipes - Recipe Finder{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1><i class="fas fa-heart me-2"></i>Saved Recipes</h1>
+        <div>
+            <a href="{% url 'recipe_search' %}" class="btn btn-primary me-2">
+                <i class="fas fa-search me-2"></i>Find More Recipes
+            </a>
+            <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+            </a>
+        </div>
+    </div>
+
+    {% if recipes %}
+    <div class="row">
+        {% for recipe in recipes %}
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card h-100">
+                {% if recipe.recipe_image %}
+                <img src="{{ recipe.recipe_image }}" class="card-img-top" alt="{{ recipe.recipe_title }}" style="height: 200px; object-fit: cover;">
+                {% else %}
+                <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
+                    <i class="fas fa-utensils fa-3x text-muted"></i>
+                </div>
+                {% endif %}
+                <div class="card-body d-flex flex-column">
+                    <h6 class="card-title">{{ recipe.recipe_title }}</h6>
+                    <p class="card-text small text-muted mb-2">
+                        <i class="fas fa-calendar me-1"></i>Saved {{ recipe.saved_date|timesince }} ago
+                    </p>
+                    
+                    <div class="mt-auto">
+                        <div class="d-grid gap-2">
+                            <a href="{{ recipe.recipe_url }}" target="_blank" class="btn btn-primary">
+                                <i class="fas fa-external-link-alt me-2"></i>View Recipe
+                            </a>
+                            <button class="btn btn-outline-danger btn-sm" 
+                                    onclick="removeRecipe('{{ recipe.id }}', '{{ recipe.recipe_title|escapejs }}')">
+                                <i class="fas fa-trash me-1"></i>Remove from Saved
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination could be added here if needed -->
+    <div class="row mt-4">
+        <div class="col-12 text-center">
+            <p class="text-muted">
+                <i class="fas fa-info-circle me-2"></i>
+                You have {{ recipes.count }} saved recipe{{ recipes.count|pluralize }}
+            </p>
+        </div>
+    </div>
+
+    {% else %}
+    <div class="card">
+        <div class="card-body text-center py-5">
+            <i class="fas fa-heart fa-4x text-muted mb-4"></i>
+            <h4 class="text-muted mb-3">No saved recipes yet</h4>
+            <p class="text-muted mb-4">Start exploring recipes and save your favorites for easy access later.</p>
+            <div class="d-flex justify-content-center gap-3">
+                <a href="{% url 'recipe_search' %}" class="btn btn-primary">
+                    <i class="fas fa-search me-2"></i>Search Recipes
+                </a>
+                <a href="{% url 'recipe_search' %}?use_my_ingredients=on" class="btn btn-outline-primary">
+                    <i class="fas fa-carrot me-2"></i>Use My Ingredients
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Remove Recipe Modal -->
+<div class="modal fade" id="removeRecipeModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Remove Recipe</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to remove "<span id="recipeTitle"></span>" from your saved recipes?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form id="removeRecipeForm" method="post" style="display: inline;">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="remove">
+                    <input type="hidden" name="recipe_id" id="recipeIdToRemove">
+                    <button type="submit" class="btn btn-danger">Remove Recipe</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+<script>
+function removeRecipe(recipeId, recipeTitle) {
+    document.getElementById('recipeTitle').textContent = recipeTitle;
+    document.getElementById('recipeIdToRemove').value = recipeId;
+    
+    // For now, we'll just redirect to a delete URL since we haven't implemented the delete view yet
+    if (confirm('Remove "' + recipeTitle + '" from your saved recipes?')) {
+        // You would implement a delete view and redirect here
+        // For now, we'll just show an alert
+        alert('Recipe removal functionality would be implemented here');
+    }
+}
+</script>
+{% endblock %}

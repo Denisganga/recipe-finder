@@ -1,0 +1,78 @@
+{% extends 'main/base.html' %}
+{% load static %}
+
+{% block title %}Recipe Finder - Find Your Perfect Recipe{% endblock %}
+
+{% block content %}
+<div class="hero-section text-center">
+    <div class="container">
+        <img src="{% static 'main/images/logo.svg' %}" alt="Recipe Finder Logo" class="hero-logo mb-4">
+        <h1 class="display-4 mb-4">Welcome to Recipe Finder</h1>
+        <p class="lead mb-4">Discover amazing recipes, save your favorites, and create your own culinary masterpieces!</p>
+        {% if not user.is_authenticated %}
+            <div class="d-flex justify-content-center gap-3">
+                <a href="{% url 'signup' %}" class="btn btn-primary btn-lg">
+                    <i class="fas fa-user-plus me-2"></i>Get Started
+                </a>
+                <a href="{% url 'login' %}" class="btn btn-outline-light btn-lg">
+                    <i class="fas fa-sign-in-alt me-2"></i>Login
+                </a>
+            </div>
+        {% else %}
+            <a href="{% url 'dashboard' %}" class="btn btn-primary btn-lg">
+                <i class="fas fa-tachometer-alt me-2"></i>Go to Dashboard
+            </a>
+        {% endif %}
+    </div>
+</div>
+
+<div class="container my-5">
+    <div class="row">
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 text-center">
+                <div class="card-body">
+                    <div class="mb-3">
+                        <i class="fas fa-search fa-3x text-primary"></i>
+                    </div>
+                    <h5 class="card-title">Smart Recipe Search</h5>
+                    <p class="card-text">Find recipes by ingredients, cuisine type, dietary preferences, and health conditions. Our AI-powered search helps you discover perfect recipes.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 text-center">
+                <div class="card-body">
+                    <div class="mb-3">
+                        <i class="fas fa-heart fa-3x text-danger"></i>
+                    </div>
+                    <h5 class="card-title">Save Favorites</h5>
+                    <p class="card-text">Keep track of your favorite recipes and create personalized collections for easy access anytime.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 text-center">
+                <div class="card-body">
+                    <div class="mb-3">
+                        <i class="fas fa-plus-circle fa-3x text-success"></i>
+                    </div>
+                    <h5 class="card-title">Create Recipes</h5>
+                    <p class="card-text">Share your own recipes with the community and help others discover delicious new dishes.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="bg-light py-5">
+    <div class="container text-center">
+        <h2 class="mb-4">Ready to Start Cooking?</h2>
+        <p class="lead mb-4">Join thousands of food lovers who have already discovered their new favorite recipes!</p>
+        {% if not user.is_authenticated %}
+            <a href="{% url 'signup' %}" class="btn btn-primary btn-lg">Sign Up Now</a>
+        {% endif %}
+    </div>
+</div>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+{% endblock %}

@@ -1,0 +1,161 @@
+{% extends 'main/base.html' %}
+
+{% block title %}Preferences - Recipe Finder{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1><i class="fas fa-cog me-2"></i>My Preferences</h1>
+        <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+        </a>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Dietary Preferences & Filters</h5>
+                    <small class="text-muted">These preferences will be used to personalize your recipe recommendations</small>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <!-- Diet Type -->
+                        <div class="mb-4">
+                            <label for="{{ form.diet_type.id_for_label }}" class="form-label">
+                                <i class="fas fa-apple-alt me-2"></i>Diet Type
+                            </label>
+                            {{ form.diet_type }}
+                            <div class="form-text">Choose your preferred diet type for recipe filtering</div>
+                        </div>
+
+                        <!-- Max Prep Time -->
+                        <div class="mb-4">
+                            <label for="{{ form.max_prep_time.id_for_label }}" class="form-label">
+                                <i class="fas fa-clock me-2"></i>Maximum Preparation Time (minutes)
+                            </label>
+                            <div class="input-group">
+                                {{ form.max_prep_time }}
+                                <span class="input-group-text">minutes</span>
+                            </div>
+                            <div class="form-text">Maximum time you're willing to spend preparing meals</div>
+                        </div>
+
+                        <!-- Health Labels -->
+                        <div class="mb-4">
+                            <label class="form-label">
+                                <i class="fas fa-heart me-2"></i>Health & Dietary Restrictions
+                            </label>
+                            <div class="form-text mb-3">Select all that apply to your dietary needs</div>
+                            <div class="row">
+                                {% for choice in form.health_labels %}
+                                <div class="col-md-4 col-sm-6 mb-2">
+                                    <div class="form-check">
+                                        {{ choice.tag }}
+                                        <label class="form-check-label" for="{{ choice.id_for_label }}">
+                                            {{ choice.choice_label }}
+                                        </label>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <!-- Cuisine Types -->
+                        <div class="mb-4">
+                            <label class="form-label">
+                                <i class="fas fa-globe me-2"></i>Preferred Cuisines
+                            </label>
+                            <div class="form-text mb-3">Select your favorite cuisine types</div>
+                            <div class="row">
+                                {% for choice in form.cuisine_types %}
+                                <div class="col-md-4 col-sm-6 mb-2">
+                                    <div class="form-check">
+                                        {{ choice.tag }}
+                                        <label class="form-check-label" for="{{ choice.id_for_label }}">
+                                            {{ choice.choice_label }}
+                                        </label>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-save me-2"></i>Save Preferences
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>How This Helps</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <h6><i class="fas fa-robot me-2 text-primary"></i>AI Recommendations</h6>
+                        <p class="small text-muted">Our AI uses your preferences to suggest recipes that match your dietary needs and taste preferences.</p>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <h6><i class="fas fa-filter me-2 text-success"></i>Smart Filtering</h6>
+                        <p class="small text-muted">Recipe searches are automatically filtered based on your health requirements and cuisine preferences.</p>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <h6><i class="fas fa-clock me-2 text-warning"></i>Time Management</h6>
+                        <p class="small text-muted">Only see recipes that fit within your available cooking time.</p>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <h6><i class="fas fa-heart me-2 text-danger"></i>Health Focus</h6>
+                        <p class="small text-muted">Ensure all recommended recipes meet your dietary restrictions and health goals.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-lightbulb me-2"></i>Tips</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled small">
+                        <li class="mb-2">
+                            <i class="fas fa-check text-success me-2"></i>
+                            You can change these preferences anytime
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check text-success me-2"></i>
+                            More specific preferences = better recommendations
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check text-success me-2"></i>
+                            Leave fields blank if you have no restrictions
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check text-success me-2"></i>
+                            Your preferences are private and secure
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+<style>
+.form-check-input:checked {
+    background-color: #28a745;
+    border-color: #28a745;
+}
+</style>
+{% endblock %}

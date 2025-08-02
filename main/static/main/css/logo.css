@@ -1,0 +1,83 @@
+/* Logo Styles */
+.logo-container {
+    display: flex;
+    align-items: center;
+    text-decoration: none !important;
+}
+
+.logo-container:hover {
+    text-decoration: none !important;
+}
+
+.logo-svg {
+    height: 40px;
+    width: auto;
+    margin-right: 8px;
+    transition: transform 0.3s ease;
+}
+
+.logo-svg:hover {
+    transform: scale(1.05);
+}
+
+.navbar-brand {
+    font-weight: bold;
+    color: #28a745 !important;
+    display: flex;
+    align-items: center;
+    padding: 0.5rem 0;
+}
+
+.navbar-brand:hover {
+    color: #218838 !important;
+}
+
+/* Logo text styling */
+.logo-text {
+    font-family: 'Arial', sans-serif;
+    font-weight: 700;
+    font-size: 1.4rem;
+    background: linear-gradient(135deg, #FF6B6B 0%, #4ECDC4 50%, #45B7D1 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin: 0;
+    line-height: 1.2;
+}
+
+/* Responsive logo */
+@media (max-width: 768px) {
+    .logo-svg {
+        height: 35px;
+    }
+    
+    .logo-text {
+        font-size: 1.2rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .logo-svg {
+        height: 30px;
+    }
+    
+    .logo-text {
+        font-size: 1.1rem;
+    }
+}
+
+/* Hero section logo (larger version) */
+.hero-logo {
+    height: 80px;
+    width: auto;
+    margin-bottom: 1rem;
+    filter: drop-shadow(0 4px 8px rgba(0,0,0,0.2));
+}
+
+/* Footer logo */
+.footer-logo {
+    height: 24px;
+    width: auto;
+    opacity: 0.7;
+    margin-right: 8px;
+}

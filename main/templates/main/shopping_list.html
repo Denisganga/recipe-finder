@@ -1,0 +1,209 @@
+{% extends 'main/base.html' %}
+
+{% block title %}Shopping List - Recipe Finder{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1><i class="fas fa-shopping-cart me-2"></i>Shopping List</h1>
+        <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+        </a>
+    </div>
+
+    <div class="row">
+        <!-- Add Item Form -->
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-plus me-2"></i>Add Item</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            {{ form.ingredient_name.label_tag }}
+                            {{ form.ingredient_name }}
+                        </div>
+                        <div class="mb-3">
+                            {{ form.quantity.label_tag }}
+                            {{ form.quantity }}
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-plus me-2"></i>Add to List
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Shopping Summary -->
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-chart-pie me-2"></i>Summary</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-6">
+                            <div class="border-end">
+                                <h4 class="text-warning">{{ pending_items.count }}</h4>
+                                <small class="text-muted">Pending</small>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <h4 class="text-success">{{ purchased_items.count }}</h4>
+                            <small class="text-muted">Purchased</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Shopping List Items -->
+        <div class="col-md-8">
+            <!-- Pending Items -->
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0 text-warning">
+                        <i class="fas fa-clock me-2"></i>Pending Items ({{ pending_items.count }})
+                    </h5>
+                    {% if pending_items %}
+                    <small class="text-muted">Click items to mark as purchased</small>
+                    {% endif %}
+                </div>
+                <div class="card-body">
+                    {% if pending_items %}
+                        <div class="list-group list-group-flush">
+                            {% for item in pending_items %}
+                            <div class="list-group-item d-flex justify-content-between align-items-center">
+                                <div class="flex-grow-1">
+                                    <div class="d-flex align-items-center">
+                                        <form method="post" action="{% url 'toggle_shopping_item' item.id %}" class="me-3">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-outline-success btn-sm">
+                                                <i class="fas fa-check"></i>
+                                            </button>
+                                        </form>
+                                        <div>
+                                            <h6 class="mb-1">{{ item.ingredient_name|title }}</h6>
+                                            {% if item.quantity %}
+                                            <small class="text-muted">{{ item.quantity }}</small>
+                                            {% endif %}
+                                            {% if item.recipe_source %}
+                                            <br><small class="text-info">
+                                                <i class="fas fa-utensils me-1"></i>For: {{ item.recipe_source }}
+                                            </small>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <small class="text-muted me-2">{{ item.added_date|timesince }} ago</small>
+                                    <a href="{% url 'delete_shopping_item' item.id %}" 
+                                       class="btn btn-outline-danger btn-sm"
+                                       onclick="return confirm('Remove {{ item.ingredient_name }} from shopping list?')">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-shopping-cart fa-3x text-muted mb-3"></i>
+                            <h6 class="text-muted">No pending items</h6>
+                            <p class="text-muted small">Add items manually or generate from recipes</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Purchased Items -->
+            {% if purchased_items %}
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0 text-success">
+                        <i class="fas fa-check-circle me-2"></i>Purchased Items ({{ purchased_items.count }})
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="list-group list-group-flush">
+                        {% for item in purchased_items %}
+                        <div class="list-group-item d-flex justify-content-between align-items-center opacity-75">
+                            <div class="flex-grow-1">
+                                <div class="d-flex align-items-center">
+                                    <form method="post" action="{% url 'toggle_shopping_item' item.id %}" class="me-3">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-success btn-sm">
+                                            <i class="fas fa-check"></i>
+                                        </button>
+                                    </form>
+                                    <div>
+                                        <h6 class="mb-1 text-decoration-line-through">{{ item.ingredient_name|title }}</h6>
+                                        {% if item.quantity %}
+                                        <small class="text-muted">{{ item.quantity }}</small>
+                                        {% endif %}
+                                        {% if item.recipe_source %}
+                                        <br><small class="text-info">
+                                            <i class="fas fa-utensils me-1"></i>For: {{ item.recipe_source }}
+                                        </small>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            <div>
+                                <small class="text-muted me-2">{{ item.added_date|timesince }} ago</small>
+                                <a href="{% url 'delete_shopping_item' item.id %}" 
+                                   class="btn btn-outline-danger btn-sm"
+                                   onclick="return confirm('Remove {{ item.ingredient_name }} from shopping list?')">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Help Section -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card bg-light">
+                <div class="card-body">
+                    <h6><i class="fas fa-lightbulb me-2"></i>Shopping List Tips</h6>
+                    <div class="row">
+                        <div class="col-md-3">
+                            <small>
+                                <i class="fas fa-magic me-1 text-primary"></i>
+                                <strong>Auto-Generate:</strong> Use "Add to Shopping List" buttons on recipe pages
+                            </small>
+                        </div>
+                        <div class="col-md-3">
+                            <small>
+                                <i class="fas fa-check me-1 text-success"></i>
+                                <strong>Mark Complete:</strong> Click the check button when you buy an item
+                            </small>
+                        </div>
+                        <div class="col-md-3">
+                            <small>
+                                <i class="fas fa-sync me-1 text-info"></i>
+                                <strong>Toggle Status:</strong> Click purchased items to mark as pending again
+                            </small>
+                        </div>
+                        <div class="col-md-3">
+                            <small>
+                                <i class="fas fa-utensils me-1 text-warning"></i>
+                                <strong>Recipe Source:</strong> See which recipe suggested each ingredient
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+{% endblock %}

@@ -1,0 +1,278 @@
+{% extends 'main/base.html' %}
+
+{% block title %}Recipe Search - Recipe Finder{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1><i class="fas fa-search me-2"></i>Recipe Search</h1>
+        <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+        </a>
+    </div>
+
+    <!-- Search Form -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get">
+                <!-- Basic Search Row -->
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        {{ form.query.label_tag }}
+                        {{ form.query }}
+                    </div>
+                    <div class="col-md-3">
+                        {{ form.max_time.label_tag }}
+                        <div class="input-group">
+                            {{ form.max_time }}
+                            <span class="input-group-text">minutes</span>
+                        </div>
+                        {% if form.max_time.help_text %}
+                        <small class="form-text text-muted">{{ form.max_time.help_text }}</small>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-check mt-4">
+                            {{ form.use_my_ingredients }}
+                            {{ form.use_my_ingredients.label_tag }}
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Filter Row -->
+                <div class="row g-3 mb-3">
+                    <div class="col-md-3">
+                        {{ form.diet_filter.label_tag }}
+                        {{ form.diet_filter }}
+                    </div>
+                    <div class="col-md-3">
+                        {{ form.cuisine_filter.label_tag }}
+                        {{ form.cuisine_filter }}
+                    </div>
+                    <div class="col-md-3">
+                        {{ form.health_condition.label_tag }}
+                        {{ form.health_condition }}
+                        {% if form.health_condition.help_text %}
+                        <small class="form-text text-muted">{{ form.health_condition.help_text }}</small>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-3">
+                        {{ form.sodium_level.label_tag }}
+                        {{ form.sodium_level }}
+                        {% if form.sodium_level.help_text %}
+                        <small class="form-text text-muted">{{ form.sodium_level.help_text }}</small>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Additional Filters Row -->
+                <div class="row g-3 mb-3">
+                    <div class="col-md-3">
+                        {{ form.sugar_level.label_tag }}
+                        {{ form.sugar_level }}
+                        {% if form.sugar_level.help_text %}
+                        <small class="form-text text-muted">{{ form.sugar_level.help_text }}</small>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-9">
+                        <!-- Empty space for future filters -->
+                    </div>
+                </div>
+                
+                <!-- Action Buttons -->
+                <div class="row">
+                    <div class="col-12">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-search me-2"></i>Search Recipes
+                        </button>
+                        <a href="{% url 'recipe_search' %}" class="btn btn-outline-secondary ms-2">
+                            <i class="fas fa-times me-2"></i>Clear Filters
+                        </a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- AI Suggestions -->
+    {% if ai_suggestions %}
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0"><i class="fas fa-robot me-2"></i>AI Recipe Suggestions</h5>
+            <small>Based on your available ingredients</small>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                {% for suggestion in ai_suggestions %}
+                <div class="col-md-4 mb-3">
+                    <div class="card h-100 border-primary">
+                        <div class="card-body">
+                            <h6 class="card-title">{{ suggestion.name }}</h6>
+                            <p class="card-text small">{{ suggestion.description }}</p>
+                            
+                            <div class="mb-2">
+                                <small class="text-muted">
+                                    <i class="fas fa-clock me-1"></i>{{ suggestion.cooking_time }}
+                                    <span class="ms-2"><i class="fas fa-signal me-1"></i>{{ suggestion.difficulty }}</span>
+                                </small>
+                            </div>
+                            
+                            <div class="mb-2">
+                                <small><strong>Uses your ingredients:</strong></small><br>
+                                {% for ing in suggestion.available_ingredients %}
+                                    <span class="badge bg-success me-1">{{ ing }}</span>
+                                {% endfor %}
+                            </div>
+                            
+                            {% if suggestion.additional_ingredients %}
+                            <div class="mb-2">
+                                <small><strong>Additional ingredients needed:</strong></small><br>
+                                {% for ing in suggestion.additional_ingredients %}
+                                    <span class="badge bg-warning text-dark me-1">{{ ing }}</span>
+                                {% endfor %}
+                            </div>
+                            
+                            <!-- Generate Shopping List for AI Suggestions -->
+                            <form method="post" action="{% url 'generate_shopping_list' %}" class="d-inline">
+                                {% csrf_token %}
+                                {% for ing in suggestion.additional_ingredients %}
+                                    <input type="hidden" name="ingredients" value="{{ ing }}">
+                                {% endfor %}
+                                <input type="hidden" name="recipe_name" value="{{ suggestion.name }}">
+                                <button type="submit" class="btn btn-sm btn-outline-warning">
+                                    <i class="fas fa-shopping-cart me-1"></i>Add to Shopping List
+                                </button>
+                            </form>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Real Recipes from Edamam -->
+    {% if recipes %}
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0"><i class="fas fa-utensils me-2"></i>Recipe Results ({{ recipes|length }})</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                {% for recipe in recipes %}
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card h-100">
+                        {% if recipe.image %}
+                        <img src="{{ recipe.image }}" class="card-img-top" alt="{{ recipe.title }}" style="height: 200px; object-fit: cover;">
+                        {% endif %}
+                        <div class="card-body d-flex flex-column">
+                            <h6 class="card-title">{{ recipe.title|truncatewords:6 }}</h6>
+                            <p class="card-text small text-muted mb-2">
+                                <i class="fas fa-external-link-alt me-1"></i>{{ recipe.source }}
+                            </p>
+                            
+                            <div class="mb-2">
+                                {% if recipe.time %}
+                                <small class="text-muted">
+                                    <i class="fas fa-clock me-1"></i>{{ recipe.time }} min
+                                </small>
+                                {% endif %}
+                                {% if recipe.servings %}
+                                <small class="text-muted ms-2">
+                                    <i class="fas fa-users me-1"></i>{{ recipe.servings }} servings
+                                </small>
+                                {% endif %}
+                                {% if recipe.calories %}
+                                <small class="text-muted ms-2">
+                                    <i class="fas fa-fire me-1"></i>{{ recipe.calories }} cal
+                                </small>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- Diet and Health Labels -->
+                            {% if recipe.diet_labels or recipe.health_labels %}
+                            <div class="mb-2">
+                                {% for label in recipe.diet_labels|slice:":2" %}
+                                    <span class="badge bg-success me-1">{{ label }}</span>
+                                {% endfor %}
+                                {% for label in recipe.health_labels|slice:":3" %}
+                                    <span class="badge bg-info me-1">{{ label }}</span>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                            
+                            <!-- Cuisine Type -->
+                            {% if recipe.cuisine_type %}
+                            <div class="mb-2">
+                                {% for cuisine in recipe.cuisine_type|slice:":2" %}
+                                    <span class="badge bg-secondary me-1">{{ cuisine|title }}</span>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                            
+                            <div class="mt-auto">
+                                <div class="btn-group w-100" role="group">
+                                    <a href="{{ recipe.url }}" target="_blank" class="btn btn-outline-primary btn-sm">
+                                        <i class="fas fa-external-link-alt me-1"></i>View Recipe
+                                    </a>
+                                    
+                                    <!-- Save Recipe Form -->
+                                    <form method="post" action="{% url 'save_recipe' %}" class="d-inline">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="recipe_id" value="{{ recipe.id }}">
+                                        <input type="hidden" name="recipe_title" value="{{ recipe.title }}">
+                                        <input type="hidden" name="recipe_image" value="{{ recipe.image }}">
+                                        <input type="hidden" name="recipe_url" value="{{ recipe.url }}">
+                                        <button type="submit" class="btn btn-outline-success btn-sm">
+                                            <i class="fas fa-heart me-1"></i>Save
+                                        </button>
+                                    </form>
+                                </div>
+                                
+                                <!-- Generate Shopping List -->
+                                {% if recipe.ingredients %}
+                                <form method="post" action="{% url 'generate_shopping_list' %}" class="mt-2">
+                                    {% csrf_token %}
+                                    {% for ingredient in recipe.ingredients %}
+                                        <input type="hidden" name="ingredients" value="{{ ingredient }}">
+                                    {% endfor %}
+                                    <input type="hidden" name="recipe_name" value="{{ recipe.title }}">
+                                    <button type="submit" class="btn btn-outline-warning btn-sm w-100">
+                                        <i class="fas fa-shopping-cart me-1"></i>Add Ingredients to Shopping List
+                                    </button>
+                                </form>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% elif request.GET %}
+    <div class="card">
+        <div class="card-body text-center py-5">
+            <i class="fas fa-search fa-4x text-muted mb-3"></i>
+            <h5 class="text-muted">No recipes found</h5>
+            <p class="text-muted">Try adjusting your search criteria or add more ingredients to your pantry.</p>
+            <a href="{% url 'ingredients' %}" class="btn btn-primary">
+                <i class="fas fa-plus me-2"></i>Add Ingredients
+            </a>
+        </div>
+    </div>
+    {% else %}
+    <div class="card">
+        <div class="card-body text-center py-5">
+            <i class="fas fa-search fa-4x text-muted mb-3"></i>
+            <h5 class="text-muted">Start your recipe search</h5>
+            <p class="text-muted">Enter a search term or use your available ingredients to find personalized recipes.</p>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+{% endblock %}
